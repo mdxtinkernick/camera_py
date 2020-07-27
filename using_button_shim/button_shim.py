@@ -2,12 +2,28 @@
 import json
 from time import sleep, time
 import buttonshim
-from picamera import PiCamera
+import picamera
 
 run =True
-camera = PiCamera()
+camera = picamera.PiCamera()
 annotation_show_time = 3  #in seconds
 annotation_off_time = 'null'
+
+def display_settings():
+    global annotation_off_time
+    camera.annotate_background = picamera.Color('blue')
+    annotation = ' '
+    if settings['cam_rotate']:
+        annotation+='rotated '
+    if settings['cam_h_flip']:
+        annotation+='horizontally flipped '
+    if settings['cam_v_flip']:
+        annotation+='vertically flipped '
+    if annotation == ' ':
+        annotation = ' plain '
+        camera.annotate_background = picamera.Color('green')
+    camera.annotate_text = annotation
+    annotation_off_time = int(time()) + annotation_show_time
 
 with open('camera_settings.txt') as settings_file:
     settings = json.load(settings_file)
@@ -18,17 +34,6 @@ with open('camera_settings.txt') as settings_file:
     if settings['cam_v_flip']:
         camera.vflip = True
     display_settings()
-
-def display_settings();
-    annotation = ''
-    if settings['cam_rotate']:
-        annotation+='rotated '
-    if settings['cam_h_flip']:
-        annotation+='horizontally flipped '
-    if settings['cam_v_flip']:
-        annotation+='vertically flipped '
-    camera.annotate_text = annotation
-    annotation_off_time = int(time()) + annotation_show_time
 
 @buttonshim.on_press([buttonshim.BUTTON_A, buttonshim.BUTTON_B, buttonshim.BUTTON_C, buttonshim.BUTTON_D, buttonshim.BUTTON_E])
 def button(button, pressed):
@@ -65,7 +70,8 @@ def button(button, pressed):
 camera.start_preview()
 
 while run:
-    if annotate_off_time != 'null':
-        if annotate_off_time < time:
+    if annotation_off_time != 'null':
+        if annotation_off_time < time():
             camera.annotate_text = ''
-    sleep(2)
+            annotation_off_time = 'null'
+    sleep(1)
