@@ -8,6 +8,7 @@ run =True
 camera = picamera.PiCamera()
 annotation_show_time = 3  #in seconds
 annotation_off_time = 'null'
+camera_settings_file = '/home/pi/camera_settings.txt'
 
 def display_settings():
     global annotation_off_time
@@ -25,7 +26,7 @@ def display_settings():
     camera.annotate_text = annotation
     annotation_off_time = int(time()) + annotation_show_time
 
-with open('camera_settings.txt') as settings_file:
+with open(camera_settings_file) as settings_file:
     settings = json.load(settings_file)
     if settings['cam_rotate']:
         camera.rotation = 180
@@ -64,7 +65,7 @@ def button(button, pressed):
         camera.stop_preview()
         global run
         run = False
-    with open('camera_settings.txt', 'w') as settings_file:
+    with open(camera_settings_file, 'w') as settings_file:
         json.dump(settings, settings_file)
 
 camera.start_preview()
