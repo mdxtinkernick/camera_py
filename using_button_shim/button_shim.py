@@ -4,7 +4,7 @@ from time import sleep, time
 import buttonshim
 import picamera
 
-run =True
+run = True
 camera = picamera.PiCamera()
 annotation_show_time = 3  #in seconds
 annotation_off_time = 'null'
@@ -61,8 +61,7 @@ def button(button, pressed):
         display_settings()
     elif button == 3:
         pass
-    elif button == 4:
-         
+    elif button == 4:      
         if camera.preview.fullscreen == True:
             camera.preview.window = (500, 100, 1920/4, 1080/4)
             camera.preview.fullscreen = False
