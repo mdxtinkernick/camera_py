@@ -63,7 +63,7 @@ def button(button, pressed):
         pass
     elif button == 4:      
         if camera.preview.fullscreen == True:
-            camera.preview.window = (500, 100, 1920/4, 1080/4)
+            camera.preview.window = (100, 100, int(1920/4), int(1080/4))
             camera.preview.fullscreen = False
         else:
             camera.preview.fullscreen = True
@@ -71,10 +71,10 @@ def button(button, pressed):
         json.dump(settings, settings_file)
 
 @buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = 2)
-    def button(button):
-        camera.stop_preview()
-        global run
-        run = False
+def button(button):
+    camera.stop_preview()
+    global run
+    run = False
 
 camera.start_preview()
 
