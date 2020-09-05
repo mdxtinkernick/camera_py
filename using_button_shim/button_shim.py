@@ -12,6 +12,10 @@ annotation_show_time = 3  #in seconds
 annotation_off_time = 'null'
 camera_settings_file = '/home/pi/camera_settings.txt'
 
+def dispay_text(display_text):
+    camera.annotate_text = display_text
+    annotation_off_time = int(time()) + annotation_show_time
+
 def display_settings():
     global annotation_off_time
     camera.annotate_background = picamera.Color('blue')
@@ -25,8 +29,7 @@ def display_settings():
     if annotation == ' ':
         annotation = ' plain '
         camera.annotate_background = picamera.Color('green')
-    camera.annotate_text = annotation
-    annotation_off_time = int(time()) + annotation_show_time
+    display_text(annotation)
 
 def copy_code(path_to_code):
     code_file = open(path_to_code)
@@ -41,12 +44,12 @@ def update_code():
     if os.path.exists(file_path) and os.path.isfile(file_path):
         print("file exists for updating")
         copy_code(file_path):
-        camera.annotate_text = 'code updated - rebooting'
+        display_text('code updated - rebooting')
         time.sleep(3)
+        camera.close()
         os.system('sudo shutdown -r now')
     else
-        camera.annotate_text = 'no code to update - check usb stick'
-        annotation_off_time = int(time()) + annotation_show_time
+        display_text('no code to update - check usb stick')
 
 with open(camera_settings_file) as settings_file:
     settings = json.load(settings_file)
@@ -83,9 +86,8 @@ def button(button, pressed):
         display_settings()
     elif button == 3:
         text = 'version ' + str(version)
-        camera.annotate_text(text)
-        annotation_off_time = int(time()) + annotation_show_time 
-    elif button == 4:      
+        display_text(text)
+    elif button == 4:
         if camera.preview.fullscreen == True:
             camera.preview.window = (100, 100, int(1920/4), int(1080/4))
             camera.preview.fullscreen = False
