@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import json
 from time import sleep, time
 import buttonshim
@@ -25,6 +26,26 @@ def display_settings():
         camera.annotate_background = picamera.Color('green')
     camera.annotate_text = annotation
     annotation_off_time = int(time()) + annotation_show_time
+
+def copy_code(path_to_code):
+    code_file = open(path_to_code)
+    code = code_file.read()
+    target_file = open(os.path.abspath(__file__), "w")
+    target_file.write(code)
+
+def update_code():
+    global annotation_off_time
+    disk_names = os.listdir("/media/pi")
+    file_path = '/media/pi/' + disk_names[0] + 'update_code'
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        print("file exists for updating")
+        copy_code(file_path):
+        camera.annotate_text = 'code updated - rebooting'
+        time.sleep(3)
+        os.system('sudo shutdown -r now')
+    else
+        camera.annotate_text = 'no code to update - check usb stick'
+        annotation_off_time = int(time()) + annotation_show_time
 
 with open(camera_settings_file) as settings_file:
     settings = json.load(settings_file)
@@ -60,7 +81,7 @@ def button(button, pressed):
             camera.vflip = False
         display_settings()
     elif button == 3:
-        pass
+        update_code()
     elif button == 4:      
         if camera.preview.fullscreen == True:
             camera.preview.window = (100, 100, int(1920/4), int(1080/4))
