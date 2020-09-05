@@ -5,6 +5,7 @@ from time import sleep, time
 import buttonshim
 import picamera
 
+version = 1.0
 run = True
 camera = picamera.PiCamera()
 annotation_show_time = 3  #in seconds
@@ -81,7 +82,9 @@ def button(button, pressed):
             camera.vflip = False
         display_settings()
     elif button == 3:
-        update_code()
+        text = 'version ' + str(version)
+        camera.annotate_text(text)
+        annotation_off_time = int(time()) + annotation_show_time 
     elif button == 4:      
         if camera.preview.fullscreen == True:
             camera.preview.window = (100, 100, int(1920/4), int(1080/4))
@@ -91,11 +94,14 @@ def button(button, pressed):
     with open(camera_settings_file, 'w') as settings_file:
         json.dump(settings, settings_file)
 
-@buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = 2)
+@buttonshim.on_hold(buttonshim.BUTTON_D, buttonshim.BUTTON_E, hold_time = 2)
 def button(button):
-    camera.stop_preview()
-    global run
-    run = False
+    if button == 3:
+        update_code()
+    if button == 4:
+        camera.stop_preview()
+        global run
+        run = False
 
 camera.start_preview()
 
