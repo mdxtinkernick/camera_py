@@ -12,8 +12,9 @@ annotation_show_time = 3  #in seconds
 annotation_off_time = 'null'
 camera_settings_file = '/home/pi/camera_settings.txt'
 
-def dispay_text(display_text):
-    camera.annotate_text = display_text
+def display_text(text):
+    camera.annotate_text = text
+    global annotation_off_time
     annotation_off_time = int(time()) + annotation_show_time
 
 def display_settings():
@@ -40,15 +41,15 @@ def copy_code(path_to_code):
 def update_code():
     global annotation_off_time
     disk_names = os.listdir("/media/pi")
-    file_path = '/media/pi/' + disk_names[0] + 'update_code'
+    file_path = '/media/pi/' + disk_names[0] + '/update_code'
     if os.path.exists(file_path) and os.path.isfile(file_path):
         print("file exists for updating")
-        copy_code(file_path):
+        copy_code(file_path)
         display_text('code updated - rebooting')
-        time.sleep(3)
+        sleep(3)
         camera.close()
         os.system('sudo shutdown -r now')
-    else
+    else:
         display_text('no code to update - check usb stick')
 
 with open(camera_settings_file) as settings_file:
@@ -96,14 +97,15 @@ def button(button, pressed):
     with open(camera_settings_file, 'w') as settings_file:
         json.dump(settings, settings_file)
 
-@buttonshim.on_hold(buttonshim.BUTTON_D, buttonshim.BUTTON_E, hold_time = 2)
-def button(button):
-    if button == 3:
-        update_code()
-    if button == 4:
-        camera.stop_preview()
-        global run
-        run = False
+@buttonshim.on_hold(buttonshim.BUTTON_D, hold_time = 2)
+def holdD_handler(button):
+    update_code()
+
+@buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = 2)
+def holdE_handler(button):
+    camera.stop_preview()
+    global run
+    run = False
 
 camera.start_preview()
 
