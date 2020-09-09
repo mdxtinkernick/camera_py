@@ -18,7 +18,6 @@ def display_text(text):
     annotation_off_time = int(time()) + annotation_show_time
 
 def display_settings():
-    global annotation_off_time
     camera.annotate_background = picamera.Color('blue')
     annotation = ' '
     if settings['cam_rotate']:
@@ -45,9 +44,6 @@ def extract_version(file_to_check):
     return version
 
 def check_for_same_version(file_path):
-    print (version)
-    print (extract_version(file_path))
-    print (version == extract_version(file_path))
     return version == extract_version(file_path)
 
 def copy_code(path_to_code):
@@ -75,7 +71,7 @@ def update_code():
         display_text("file found for updating")
         sleep(2)
         if (check_for_same_version(file_path)):
-            display_text('version are the same - no update needed')
+            display_text('versions are the same - no update needed')
             sleep(3)
             return
         else:
@@ -143,6 +139,7 @@ def holdE_handler(button):
     run = False
 
 camera.start_preview()
+
 
 while run:
     if annotation_off_time != 'null':
