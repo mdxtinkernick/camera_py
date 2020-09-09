@@ -75,12 +75,12 @@ def update_code():
         display_text("file found for updating")
         sleep(2)
         if (check_for_same_version(file_path)):
-            display_text('version are the same')
+            display_text('version are the same - no update needed')
             sleep(3)
             return
         else:
             copy_code(file_path)
-            display_text('code updated - would be rebooting')
+            display_text('code updated - rebooting')
             sleep(2)
             camera.close()
             os.system('sudo shutdown -r now')
