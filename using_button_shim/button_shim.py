@@ -5,7 +5,7 @@ from time import sleep, time
 import buttonshim
 import picamera
 
-version = 1.0
+version = "1.1"
 run = True
 camera = picamera.PiCamera()
 annotation_show_time = 3  #in seconds
@@ -32,25 +32,60 @@ def display_settings():
         camera.annotate_background = picamera.Color('green')
     display_text(annotation)
 
+def extract_version(file_to_check):
+    file = open(file_to_check)
+    text = file.read()
+    file.close()
+    for item in text.split('\n'):
+        if "version" in item:
+            line = item.strip()
+            break
+    elements = line.split(' = ')
+    version = elements[1].strip('"')
+    return version
+
+def check_for_same_version(file_path):
+    print (version)
+    print (extract_version(file_path))
+    print (version == extract_version(file_path))
+    return version == extract_version(file_path)
+
 def copy_code(path_to_code):
     code_file = open(path_to_code)
     code = code_file.read()
+    code_file.close()
     target_file = open(os.path.abspath(__file__), "w")
     target_file.write(code)
+    target_file.close()
 
 def update_code():
-    global annotation_off_time
     disk_names = os.listdir("/media/pi")
+    if os.path.exists('/media/pi') is False:
+        display_text("no usb stick inserted")
+        sleep(3)
+        return
+    disk_names = os.listdir("/media/pi")
+    if len(disk_names)==0:
+        display_text("no usb stick inserted")
+        sleep(3)
+        return
+    #usb stick is present
     file_path = '/media/pi/' + disk_names[0] + '/update_code'
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        print("file exists for updating")
-        copy_code(file_path)
-        display_text('code updated - rebooting')
-        sleep(3)
-        camera.close()
-        os.system('sudo shutdown -r now')
+        display_text("file found for updating")
+        sleep(2)
+        if (check_for_same_version(file_path)):
+            display_text('version are the same')
+            sleep(3)
+            return
+        else:
+            copy_code(file_path)
+            display_text('code updated - would be rebooting')
+            sleep(2)
+            camera.close()
+            os.system('sudo shutdown -r now')
     else:
-        display_text('no code to update - check usb stick')
+        display_text('no update file found on usb stick')
 
 with open(camera_settings_file) as settings_file:
     settings = json.load(settings_file)
@@ -86,7 +121,7 @@ def button(button, pressed):
             camera.vflip = False
         display_settings()
     elif button == 3:
-        text = 'version ' + str(version)
+        text = 'version ' + version
         display_text(text)
     elif button == 4:
         if camera.preview.fullscreen == True:
