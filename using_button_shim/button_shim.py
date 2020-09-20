@@ -8,6 +8,7 @@ import picamera
 version = "1.1"
 run = True
 camera = picamera.PiCamera()
+buttonshim.set_pixel(0x00, 0x00, 0x00)
 annotation_show_time = 3  #in seconds
 annotation_off_time = 'null'
 camera_settings_file = '/home/pi/camera_settings.txt'
