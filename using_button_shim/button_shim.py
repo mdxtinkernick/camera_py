@@ -5,7 +5,7 @@ from time import sleep, time
 import buttonshim
 import picamera
 
-version = "1.1"
+version = "1.2"
 run = True
 camera = picamera.PiCamera()
 buttonshim.set_pixel(0x00, 0x00, 0x00)
