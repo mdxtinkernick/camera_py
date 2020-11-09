@@ -5,7 +5,7 @@ from time import sleep, time
 import buttonshim
 import picamera
 
-version = "1.2"
+version = "1.3"
 run = True
 camera = picamera.PiCamera()
 buttonshim.set_pixel(0x00, 0x00, 0x00)
@@ -55,6 +55,10 @@ def copy_code(path_to_code):
     target_file.write(code)
     target_file.close()
 
+def save_settings():
+    with open(camera_settings_file, 'w') as settings_file:
+        json.dump(settings, settings_file)
+        
 def update_code():
     disk_names = os.listdir("/media/pi")
     if os.path.exists('/media/pi') is False:
@@ -126,9 +130,20 @@ def button(button, pressed):
             camera.preview.fullscreen = False
         else:
             camera.preview.fullscreen = True
-    with open(camera_settings_file, 'w') as settings_file:
-        json.dump(settings, settings_file)
 
+    save_settings()
+
+@buttonshim.on_hold(buttonshim.BUTTON_A, hold_time = 2)
+def holdA_handler(button):
+    settings['cam_v_flip'] = False
+    settings['cam_h_flip'] = False
+    settings['cam_rotate'] = False
+    camera.vflip = False
+    camera.hflip = False
+    camera.rotation = 0
+    save_settings()
+    display_settings()
+    
 @buttonshim.on_hold(buttonshim.BUTTON_D, hold_time = 2)
 def holdD_handler(button):
     update_code()
@@ -139,8 +154,8 @@ def holdE_handler(button):
     global run
     run = False
 
-camera.start_preview()
 
+camera.start_preview()
 
 while run:
     if annotation_off_time != 'null':
