@@ -8,6 +8,7 @@ import picamera
 version = "1.3"
 run = True
 camera = picamera.PiCamera()
+camera.annotate_text_size = 100
 buttonshim.set_pixel(0x00, 0x00, 0x00)
 annotation_show_time = 4  #in seconds
 button_hold_time = 2
@@ -21,15 +22,15 @@ def display_text(text):
 
 def display_settings():
     camera.annotate_background = picamera.Color('blue')
-    annotation = ' '
-    if camera.rotation > 0:
-        annotation+='rotated '
-    if camera.hflip:
-        annotation+='horizontally flipped '
+    annotation = ''
     if camera.vflip:
-        annotation+='vertically flipped '
-    if annotation == ' ':
-        annotation = ' plain '
+        annotation = '\n vertical flip ' + annotation
+    if camera.hflip:
+        annotation = '\n horizontal flip ' + annotation
+    if camera.rotation > 0:
+        annotation = '\n rotated ' + annotation
+    if annotation == '':
+        annotation = '\n\n plain '
         camera.annotate_background = picamera.Color('green')
     display_text(annotation)
 
@@ -124,7 +125,7 @@ def button(button, pressed):
             camera.rotation = 180
         display_settings()
     elif button == 1:
-        if settings['cam_h_flip']:
+        if camera.hflip:
             camera.hflip = False
         else:
             camera.hflip = True
