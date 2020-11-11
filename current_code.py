@@ -9,7 +9,8 @@ version = "1.3"
 run = True
 camera = picamera.PiCamera()
 buttonshim.set_pixel(0x00, 0x00, 0x00)
-annotation_show_time = 3  #in seconds
+annotation_show_time = 4  #in seconds
+button_hold_time = 2
 annotation_off_time = 'null'
 camera_settings_file = '/home/pi/camera_settings.txt'
 
@@ -21,11 +22,11 @@ def display_text(text):
 def display_settings():
     camera.annotate_background = picamera.Color('blue')
     annotation = ' '
-    if settings['cam_rotate']:
+    if camera.rotation > 0:
         annotation+='rotated '
-    if settings['cam_h_flip']:
+    if camera.hflip:
         annotation+='horizontally flipped '
-    if settings['cam_v_flip']:
+    if camera.vflip:
         annotation+='vertically flipped '
     if annotation == ' ':
         annotation = ' plain '
@@ -56,8 +57,24 @@ def copy_code(path_to_code):
     target_file.close()
 
 def save_settings():
-    with open(camera_settings_file, 'w') as settings_file:
-        json.dump(settings, settings_file)
+    settings_file = open(camera_settings_file, 'r')
+    settings = json.load(settings_file)
+    settings_file.close()
+    if (camera.rotation):
+        settings['cam_rotation'] = True
+    else:
+        settings['cam_rotation'] = False
+    if (camera.vflip):
+        settings['cam_v_flip'] = True
+    else:
+        settings['cam_v_flip'] = False
+    if (camera.hflip):
+        settings['cam_h_flip'] = True
+    else:
+        settings['cam_h_flip'] = False
+    settings_file = open(camera_settings_file, 'w')
+    json.dump(settings, settings_file)
+    settings_file.close()
         
 def update_code():
     disk_names = os.listdir("/media/pi")
@@ -101,25 +118,22 @@ with open(camera_settings_file) as settings_file:
 @buttonshim.on_press([buttonshim.BUTTON_A, buttonshim.BUTTON_B, buttonshim.BUTTON_C, buttonshim.BUTTON_D, buttonshim.BUTTON_E])
 def button(button, pressed):
     if button == 0:
-        settings['cam_rotate'] = not settings['cam_rotate']
-        if settings['cam_rotate']:
-            camera.rotation = 180
-        else:
+        if camera.rotation:
             camera.rotation = 0
+        else:
+            camera.rotation = 180
         display_settings()
     elif button == 1:
-        settings['cam_h_flip'] = not settings['cam_h_flip']
         if settings['cam_h_flip']:
-            camera.hflip = True
-        else:
             camera.hflip = False
+        else:
+            camera.hflip = True
         display_settings()
     elif button == 2:
-        settings['cam_v_flip'] = not settings['cam_v_flip']
-        if settings['cam_v_flip']:
-            camera.vflip = True
-        else:
+        if camera.vflip:
             camera.vflip = False
+        else:
+            camera.vflip = True
         display_settings()
     elif button == 3:
         text = 'version ' + version
@@ -133,22 +147,19 @@ def button(button, pressed):
 
     save_settings()
 
-@buttonshim.on_hold(buttonshim.BUTTON_A, hold_time = 2)
+@buttonshim.on_hold(buttonshim.BUTTON_A, hold_time = 3)
 def holdA_handler(button):
-    settings['cam_v_flip'] = False
-    settings['cam_h_flip'] = False
-    settings['cam_rotate'] = False
     camera.vflip = False
     camera.hflip = False
     camera.rotation = 0
     save_settings()
     display_settings()
     
-@buttonshim.on_hold(buttonshim.BUTTON_D, hold_time = 2)
+@buttonshim.on_hold(buttonshim.BUTTON_D, hold_time = 3)
 def holdD_handler(button):
     update_code()
 
-@buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = 2)
+@buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = 3)
 def holdE_handler(button):
     camera.stop_preview()
     global run
