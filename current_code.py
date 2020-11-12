@@ -83,28 +83,28 @@ def save_settings():
         
 def update_code():
     if os.path.exists('/media/pi') is False:
-        display_text("no usb stick inserted")
+        display_text("\n\n no usb stick inserted ")
         return
     disk_names = os.listdir("/media/pi")
     if len(disk_names)==0:
-        display_text("no usb stick inserted")
+        display_text("\n\n no usb stick inserted ")
         return
     #usb stick is present
     file_path = '/media/pi/' + disk_names[0] + '/update_code'
     if os.path.exists(file_path) and os.path.isfile(file_path):
-        display_text("file found for updating")
+        display_text("\n\n file found for updating ")
         sleep(2)
         if (check_for_same_version(file_path)):
-            display_text('versions are the same - no update needed')
+            display_text('\n\n versions are the same \n no update needed ')
             return
         else:
             copy_code(file_path)
-            display_text('code updated - rebooting')
+            display_text('\n\n code updated - rebooting ')
             sleep(2)
             camera.close()
             os.system('sudo shutdown -r now')
     else:
-        display_text('no update file found on usb stick')
+        display_text('\n\n no update file found on usb stick ')
 
 with open(camera_settings_file) as settings_file:
     settings = json.load(settings_file)
