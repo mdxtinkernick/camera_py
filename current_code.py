@@ -84,12 +84,10 @@ def save_settings():
 def update_code():
     if os.path.exists('/media/pi') is False:
         display_text("no usb stick inserted")
-        #sleep(3) #should be unnecesary - check
         return
     disk_names = os.listdir("/media/pi")
     if len(disk_names)==0:
         display_text("no usb stick inserted")
-        #sleep(3) #should be unnecesary - check
         return
     #usb stick is present
     file_path = '/media/pi/' + disk_names[0] + '/update_code'
@@ -98,7 +96,6 @@ def update_code():
         sleep(2)
         if (check_for_same_version(file_path)):
             display_text('versions are the same - no update needed')
-            #sleep(3) #should be unnecesary - check
             return
         else:
             copy_code(file_path)
@@ -140,8 +137,7 @@ def button(button, pressed):
             camera.vflip = True
         display_settings()
     elif button == 3:
-        text = 'version ' + version
-        display_text(text)
+        display_settings()
     elif button == 4:
         if camera.preview.fullscreen == True:
             camera.preview.window = (100, 100, int(1920/4), int(1080/4))
