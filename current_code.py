@@ -22,14 +22,18 @@ def display_text(text):
 
 def display_settings():
     camera.annotate_background = picamera.Color('blue')
-    annotation = ''
-    if camera.vflip:
-        annotation = '\n vertical flip ' + annotation
-    if camera.hflip:
-        annotation = '\n horizontal flip ' + annotation
+    annotation = 'version ' + version
+    plain = True
     if camera.rotation > 0:
-        annotation = '\n rotated ' + annotation
-    if annotation == '':
+        plain = False
+        annotation += '\n rotated '
+    if camera.hflip:
+        plain = False
+        annotation += '\n horizontal flip '
+    if camera.vflip:
+        plain = False
+        annotation += '\n vertical flip '
+    if plain:
         annotation = '\n\n plain '
         camera.annotate_background = picamera.Color('green')
     display_text(annotation)
@@ -78,15 +82,14 @@ def save_settings():
     settings_file.close()
         
 def update_code():
-    disk_names = os.listdir("/media/pi")
     if os.path.exists('/media/pi') is False:
         display_text("no usb stick inserted")
-        sleep(3)
+        #sleep(3) #should be unnecesary - check
         return
     disk_names = os.listdir("/media/pi")
     if len(disk_names)==0:
         display_text("no usb stick inserted")
-        sleep(3)
+        #sleep(3) #should be unnecesary - check
         return
     #usb stick is present
     file_path = '/media/pi/' + disk_names[0] + '/update_code'
@@ -95,7 +98,7 @@ def update_code():
         sleep(2)
         if (check_for_same_version(file_path)):
             display_text('versions are the same - no update needed')
-            sleep(3)
+            #sleep(3) #should be unnecesary - check
             return
         else:
             copy_code(file_path)
@@ -148,7 +151,7 @@ def button(button, pressed):
 
     save_settings()
 
-@buttonshim.on_hold(buttonshim.BUTTON_A, hold_time = 3)
+@buttonshim.on_hold(buttonshim.BUTTON_A, hold_time = button_hold_time)
 def holdA_handler(button):
     camera.vflip = False
     camera.hflip = False
@@ -156,11 +159,11 @@ def holdA_handler(button):
     save_settings()
     display_settings()
     
-@buttonshim.on_hold(buttonshim.BUTTON_D, hold_time = 3)
+@buttonshim.on_hold(buttonshim.BUTTON_D, hold_time = button_hold_time)
 def holdD_handler(button):
     update_code()
 
-@buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = 3)
+@buttonshim.on_hold(buttonshim.BUTTON_E, hold_time = button_hold_time)
 def holdE_handler(button):
     camera.stop_preview()
     global run
