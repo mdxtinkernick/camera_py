@@ -34,7 +34,7 @@ def display_settings():
         plain = False
         annotation += '\n vertical flip '
     if plain:
-        annotation = '\n\n plain '
+        annotation += '\n plain '
         camera.annotate_background = picamera.Color('green')
     display_text(annotation)
 
