@@ -5,7 +5,7 @@ from time import sleep, time
 import buttonshim
 import picamera
 
-version = "1.3"
+version = "1.4"
 run = True
 camera = picamera.PiCamera()
 camera.annotate_text_size = 100
@@ -62,13 +62,10 @@ def copy_code(path_to_code):
     target_file.close()
 
 def save_settings():
-    settings_file = open(camera_settings_file, 'r')
-    settings = json.load(settings_file)
-    settings_file.close()
     if (camera.rotation):
-        settings['cam_rotation'] = True
+        settings['cam_rotate'] = True
     else:
-        settings['cam_rotation'] = False
+        settings['cam_rotate'] = False
     if (camera.vflip):
         settings['cam_v_flip'] = True
     else:
